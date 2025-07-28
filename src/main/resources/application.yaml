@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: iso-8583-integration
+
+logging:
+  level:
+    com.github.koosty: DEBUG
