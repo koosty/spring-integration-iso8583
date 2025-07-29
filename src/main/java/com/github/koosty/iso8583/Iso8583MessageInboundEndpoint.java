@@ -10,6 +10,7 @@ import org.springframework.integration.ip.IpHeaders;
 import org.springframework.messaging.Message;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Set;
 
 /**
  * Message endpoint for handling inbound ISO 8583 messages.
@@ -22,14 +23,17 @@ import java.nio.charset.StandardCharsets;
 public class Iso8583MessageInboundEndpoint {
     private static final Logger log = LoggerFactory.getLogger(Iso8583MessageInboundEndpoint.class);
     private final GenericPackager genericPackager;
+    private final Set<Iso8385MessageHandlerService> messageHandlerServices;
 
     /**
      * Constructs a new Iso8583MessageInboundEndpoint with the specified packager.
      *
      * @param genericPackager the ISO 8583 packager to use for message parsing
+     * @param messageHandlerServices the set of message handler services to process messages
      */
-    public Iso8583MessageInboundEndpoint(GenericPackager genericPackager) {
+    public Iso8583MessageInboundEndpoint(GenericPackager genericPackager, Set<Iso8385MessageHandlerService> messageHandlerServices) {
         this.genericPackager = genericPackager;
+        this.messageHandlerServices = messageHandlerServices;
     }
 
     /**
@@ -54,12 +58,11 @@ public class Iso8583MessageInboundEndpoint {
             // Unpack the ISO message from the byte payload
             request.unpack(bytePayload);
             log.debug("Receive unpacked ISO message: {}", new String(request.pack(), StandardCharsets.UTF_8));
-            System.out.println(request.getString("127.022.1")); // this is empty
-            // Just return the request as response for demonstration purposes with MTI "0110"
-            request.setMTI("0110");
-            request.set(11, "000013");
-            request.set(39, "00");
-            return request.pack();
+            Iso8385MessageHandlerService handlerService = messageHandlerServices.stream()
+                    .filter(h -> h.canHandle(request))
+                    .findAny()
+                    .orElseThrow(() -> new IllegalStateException("No handler found for request: " + request));
+            return handlerService.handleMessage(request).pack();
         } catch (Exception e) {
             log.error("Error unpacking ISO message", e);
             throw new RuntimeException("Failed to unpack ISO message", e);

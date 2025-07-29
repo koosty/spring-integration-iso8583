@@ -86,7 +86,7 @@ class Iso8583IntegrationApplicationTests {
         response.setPackager(packager);
         response.unpack(byteResponse);
         // Check that the response has the expected MTI
-        assertThat("0110").isEqualTo(response.getMTI());
+        assertThat("0100").isEqualTo(response.getMTI());
     }
 
     /**
