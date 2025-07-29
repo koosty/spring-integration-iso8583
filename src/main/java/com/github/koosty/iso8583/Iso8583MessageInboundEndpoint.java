@@ -54,7 +54,7 @@ public class Iso8583MessageInboundEndpoint {
             // Unpack the ISO message from the byte payload
             request.unpack(bytePayload);
             log.debug("Receive unpacked ISO message: {}", new String(request.pack(), StandardCharsets.UTF_8));
-            System.out.println(request.getString(2)); // this is empty
+            System.out.println(request.getString("127.022.1")); // this is empty
             // Just return the request as response for demonstration purposes with MTI "0110"
             request.setMTI("0110");
             request.set(11, "000013");

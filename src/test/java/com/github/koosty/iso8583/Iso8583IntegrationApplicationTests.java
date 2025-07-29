@@ -78,6 +78,7 @@ class Iso8583IntegrationApplicationTests {
         request.set(102, "970630181070041");
         request.set(120, "BRN015301213230443463");
 
+        request.set("127.022.1", "1");
         // Send the request to the TCP server and receive the response
         byte[] byteResponse = tcpClientGateway.send(request.pack());
         // unpack the response into an ISOMsg
