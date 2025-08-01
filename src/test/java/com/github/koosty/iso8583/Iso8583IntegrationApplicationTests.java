@@ -16,6 +16,9 @@ import org.springframework.integration.ip.tcp.connection.AbstractClientConnectio
 import org.springframework.integration.ip.tcp.connection.TcpNetClientConnectionFactory;
 import org.springframework.integration.ip.tcp.serializer.ByteArrayCrLfSerializer;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -77,8 +80,11 @@ class Iso8583IntegrationApplicationTests {
         request.set(49, "608");
         request.set(102, "970630181070041");
         request.set(120, "BRN015301213230443463");
-
-        request.set("127.022.1", "1");
+        Map<String, String> f172022 = new LinkedHashMap<>();
+        f172022.put("MSDN", "2260953");
+        f172022.put("UssdSessionId", "mtn:260962210258:298a2003-cc04-4d13-8947-a0435a3d9205");
+        f172022.put("SENDER_FULL_NAME", "John Mostert");
+        request.set("127.022", PostilionUtils.buildF172022(f172022));
         // Send the request to the TCP server and receive the response
         byte[] byteResponse = tcpClientGateway.send(request.pack());
         // unpack the response into an ISOMsg
